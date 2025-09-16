@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Interactive Sliders</title>
+    <style>
+        @keyframes rotation {
+            from {
+                transform: rotate(0turn);
+            }
+
+            to {
+                transform: rotate(1turn);
+            }
+        }
+    </style>
+</head>
+
+<body>
+</body>
+<script>
+    const colsNum = 16;
+    const rowsNum = 9;
+    const elementsNum = colsNum * rowsNum * 2;
+    const minValue = 0;
+    const maxValue = 2048;
+    const loopDuration = 8;
+    const elements = new Array(elementsNum).fill(0).map((_, index, arr) => {
+        const halfIndex = Math.floor(index / 2)
+        const r = halfIndex % rowsNum;
+        const c = Math.floor(halfIndex / rowsNum);
+        const cProgress = c / (colsNum - 1);
+        const rProgress = r / (rowsNum - 1);
+        const progress = index / (arr.length - 1);
+        const element = document.createElement('input');
+        element.setAttribute("type", "range");
+        element.setAttribute("min", minValue);
+        element.setAttribute("max", maxValue);
+        element.setAttribute("step", "1");
+        element.setAttribute("value", "0");
+        // element.innerHTML = "NO CLICKING";
+        document.body.appendChild(element);
+        element.style.setProperty("position", "absolute");
+        // element.style.setProperty("left", `${progress * (window.innerWidth - element.offsetWidth)}px`);
+        // element.style.setProperty("top", `${Math.sin(progress * Math.PI * 3) * window.innerHeight / 5 + (window.innerHeight / 2 - element.offsetHeight / 2)}px`);
+
+        element.style.setProperty("width", `${100 / colsNum * 1.3}vw`);
+        element.style.setProperty("height", `${100 / rowsNum}vh`);
+        element.style.setProperty("left", `${cProgress * (window.innerWidth - element.offsetWidth)}px`);
+        element.style.setProperty("top", `${rProgress * (window.innerHeight - element.offsetHeight)}px`);
+        element.style.setProperty("transform", `rotate(${index % 2 ? 0.125 : -0.125}turn)`);
+
+        // element.style.setProperty("animation-name", "rotation");
+        // element.style.setProperty("animation-duration", `${loopDuration}s`);
+        // element.style.setProperty("animation-iteration-count", "infinite");
+        // element.style.setProperty("animation-timing-function", "linear");
+        // element.style.setProperty("animation-delay", `${progress * loopDuration}s`);
+
+        element.style.setProperty("transition-property", "left, top");
+        element.style.setProperty("transition-timing-function", "ease-out");
+        element.style.setProperty("transition-duration", "0.5s");
+
+        // element.setAttribute('onmouseover', "this.style.setProperty('left',`${Math.random()*(window.innerWidth-this.offsetWidth)}px`);this.style.setProperty('top',`${Math.random()*window.innerHeight-this.offsetHeight}px`);");
+        return element;
+    });
+
+    const loop = (time) => {
+        elements.forEach((element, index, arr) => {
+            const halfIndex = Math.floor(index / 2);
+            const progress = index / (arr.length - 1);
+            const r = halfIndex % rowsNum;
+            const c = Math.floor(halfIndex / rowsNum);
+            const cProgress = c / (colsNum - 1);
+            const rProgress = r / (rowsNum - 1);
+            const x = cProgress - 0.5;
+            const y = (rProgress - 0.5) / 16 * 9;
+            // if (!element.matches(":hover")) element.value = minValue + (maxValue - minValue) / 2 * (Math.sin(time * 0.001 + Math.sqrt(x * x + y * y) * Math.PI * 4) + 1)
+            const waveProgress = 0.5 + 0.5 * Math.sin(time * 0.001 / loopDuration * Math.PI * 2 + Math.sqrt(x * x + y * y));
+            let amount = waveProgress * colsNum - c;
+            if (!element.matches(":hover")) element.value = minValue + (maxValue - minValue) * amount;
+        });
+        requestAnimationFrame(loop);
+    }
+
+    loop();
+</script>
+
+</html>
